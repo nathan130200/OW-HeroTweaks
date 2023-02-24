@@ -110,7 +110,7 @@ def magneticBomb_OnHit():
     
     wait()
 
-    async(magneticBomb_OnDestroy(), AsyncBehavior.RESTART)
+    magneticBomb_OnDestroy()
 
 
 def magneticBomb_OnDestroy():
