@@ -34,10 +34,18 @@ settings {
             ],
             "enableCompetitiveRules": true
         }
+    },
+    "heroes": {
+        "allTeams": {
+            "enabledHeroes": [
+                "mccree",
+                "mercy"
+            ]
+        }
     }
 }
 
-globalvar g_debugMode = createWorkshopSetting(bool, "Misc", "Enable Testing Mode", true, 0)
+globalvar g_debugMode = createWorkshopSetting(bool, "Misc", "Debug Mode", true, 0)
 
 rule "[DEBUG ONLY] Used for testing with bots!":
     @Event eachPlayer
