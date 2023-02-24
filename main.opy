@@ -35,9 +35,10 @@ settings {
     }
 }
 
-rule "init team 2":
+rule "[DEBUG ONLY] Used for testing with bots!":
     @Event eachPlayer
     @Condition eventPlayer != hostPlayer
+    @Disabled
     eventPlayer.setPrimaryFireEnabled(false)
     eventPlayer.setSecondaryFireEnabled(false)
     eventPlayer.setAbility1Enabled(false)
