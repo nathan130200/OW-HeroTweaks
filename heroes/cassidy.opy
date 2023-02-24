@@ -33,12 +33,13 @@ rule "cassidy magnetic bomb: trigger":
     @Condition eventPlayer.magneticBomb_state == 0
     @Condition entityExists(eventPlayer.magneticBomb_target) and eventPlayer.magneticBomb_target.isAlive()
     @Condition eventPlayer.getAbilityCooldown(Button.ABILITY_2) == 0
+    @Condition eventPlayer.getNormalizedHealth() > 0.15
     eventPlayer.setAbility2Enabled(false)
-    eventPlayer.setAbilityCooldown(Button.ABILITY_2, 9999)
     eventPlayer.magneticBomb_state = 1
     eventPlayer.magneticBomb_startVec = worldVector(vect(0, 0.5, 1.25), eventPlayer, Transform.ROTATION_AND_TRANSLATION)
     eventPlayer.magneticBomb_viewVect = eventPlayer.magneticBomb_startVec
     eventPlayer.magneticBomb_effects = []
+    damage(eventPlayer, eventPlayer, 10)
 
     createEffect(getAllPlayers(), Effect.GOOD_AURA, Color.WHITE, updateEveryTick(eventPlayer.magneticBomb_viewVect), 0.16, EffectReeval.VISIBILITY_POSITION_RADIUS_AND_COLOR)
     eventPlayer.magneticBomb_effects.append(getLastCreatedEntity())
@@ -49,7 +50,7 @@ rule "cassidy magnetic bomb: trigger":
     createEffect(getAllPlayers(), Effect.BAD_AURA_SOUND, Color.WHITE, updateEveryTick(eventPlayer.magneticBomb_viewVect), 75, EffectReeval.VISIBILITY_POSITION_RADIUS_AND_COLOR)
 
     eventPlayer.magneticBomb_effects.append(getLastCreatedEntity())
-    eventPlayer.magneticBomb_strength = eventPlayer.magneticBomb_target.getMaxHealth() * 1.02
+    eventPlayer.magneticBomb_strength = eventPlayer.magneticBomb_target.getMaxHealth() * 0.97
 
 rule "cassidy magnetic bomb: update view":
     @Event eachPlayer
@@ -128,3 +129,22 @@ def magneticBomb_OnDestroy():
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, eventPlayer.magneticBomb_cdAbility)
     eventPlayer.magneticBomb_state = 0
+
+rule "[DEBUG ONLY] Force cassidy random usage of ability 2":
+    @Team 2
+    @Event eachPlayer
+    @Hero mccree
+    @Condition g_debugMode
+    @Condition eventPlayer != hostPlayer
+    @Condition eventPlayer.getAbilityCooldown(Button.ABILITY_2) == 0
+    @Condition hostPlayer.hasSpawned()
+    @Condition hostPlayer.isAlive()
+    eventPlayer.magneticBomb_target = hostPlayer
+    wait(0.5)
+    eventPlayer.forceButtonPress(Button.ABILITY_2)
+    wait(3)
+    hostPlayer.setHealth(hostPlayer.getMaxHealth())
+    wait(3)
+    eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
+
+    goto RULE_START
