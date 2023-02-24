@@ -38,7 +38,7 @@ settings {
 rule "[DEBUG ONLY] Used for testing with bots!":
     @Event eachPlayer
     @Condition eventPlayer != hostPlayer
-    @Disabled
+    #@Disabled
     eventPlayer.setPrimaryFireEnabled(false)
     eventPlayer.setSecondaryFireEnabled(false)
     eventPlayer.setAbility1Enabled(false)

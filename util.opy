@@ -1,4 +1,7 @@
-#!define declareForEach(array) array = [0, array]
+#!mainFile "main.opy"
+
+#!define declareForEach(array) array = [0, array.slice(0, len(array))]\
+    printLog("size of for-each like array: {}".format(len(array)))
 
 #!define forEachArray(array) while array[0] < len(array[1])
 

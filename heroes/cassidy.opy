@@ -49,7 +49,7 @@ rule "cassidy magnetic bomb: trigger":
     createEffect(getAllPlayers(), Effect.BAD_AURA_SOUND, Color.WHITE, updateEveryTick(eventPlayer.magneticBomb_viewVect), 75, EffectReeval.VISIBILITY_POSITION_RADIUS_AND_COLOR)
 
     eventPlayer.magneticBomb_effects.append(getLastCreatedEntity())
-    eventPlayer.magneticBomb_strength = eventPlayer.magneticBomb_target.getMaxHealth() / 1.25
+    eventPlayer.magneticBomb_strength = eventPlayer.magneticBomb_target.getMaxHealth() * 1.02
 
 rule "cassidy magnetic bomb: update view":
     @Event eachPlayer
@@ -61,7 +61,8 @@ rule "cassidy magnetic bomb: update view":
     @Condition eventPlayer.magneticBomb_strength > CASSIDY_MAGNETICBOMB_MIN_STRENGTH
     eventPlayer.magneticBomb_strength -= CASSIDY_MAGNETICBOMB_MIN_STRENGTH
     eventPlayer.magneticBomb_startVec = eventPlayer.magneticBomb_target.getEyePosition()
-    chase(eventPlayer.magneticBomb_viewVect, eventPlayer.magneticBomb_startVec, rate=clamp(eventPlayer.magneticBomb_velocity, 10, 40), ChaseReeval.DESTINATION_AND_RATE)
+    eventPlayer.magneticBomb_velocity = distance(eventPlayer.magneticBomb_startVec, eventPlayer.magneticBomb_viewVect) + 1
+    chase(eventPlayer.magneticBomb_viewVect, eventPlayer.magneticBomb_startVec, rate=clamp(eventPlayer.magneticBomb_velocity, 10, 80), ChaseReeval.DESTINATION_AND_RATE)
 
     if distance(eventPlayer.magneticBomb_viewVect, eventPlayer.magneticBomb_target.getEyePosition()) <= 2:
         magneticBomb_OnHit()
@@ -79,6 +80,7 @@ rule "cassidy magnetic bomb: change target":
     @Condition attacker != victim
     @Condition entityExists(attacker)
     @Condition attacker.getCurrentHero() == Hero.MCCREE or attacker.getHeroOfDuplication() == Hero.MCCREE
+    @Condition attacker.magneticBomb_cdTarget == 0
     @Condition magneticBomb_isActive
     attacker.magneticBomb_target = victim
     attacker.magneticBomb_cdTarget = magneticBomb_cdDelayHit
