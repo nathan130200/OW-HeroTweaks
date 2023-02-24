@@ -35,10 +35,12 @@ settings {
     }
 }
 
+globalvar g_debugMode = createWorkshopSetting(bool, "Misc", "Enable Testing Mode", false, 0)
+
 rule "[DEBUG ONLY] Used for testing with bots!":
     @Event eachPlayer
     @Condition eventPlayer != hostPlayer
-    #@Disabled
+    @Condition g_debugMode
     eventPlayer.setPrimaryFireEnabled(false)
     eventPlayer.setSecondaryFireEnabled(false)
     eventPlayer.setAbility1Enabled(false)
