@@ -37,7 +37,6 @@
     entity.allowButton(Button.CROUCH)
 
 #!define disableHeroCaps(entity)\
-    # Reset abilities availability\
     entity.setAbility1Enabled(false)\
     entity.setAbility2Enabled(false)\
     entity.setUltEnabled(false)\
