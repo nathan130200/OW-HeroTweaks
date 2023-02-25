@@ -117,7 +117,7 @@ rule "player: soft reset":
     # Some delay to all changes get submited.
     wait(0.25)
 
-    # Notify current tweaked script we had performed a soft player params reset (for example cassidy initial setup will disable ABILITY_2 button).
+    # Notify current tweak script we have done soft resetting the player (for example cassidy initial setup will disable ABILITY_2 button).
     eventPlayer.setTag("reset")
 
 delimiterRule()
