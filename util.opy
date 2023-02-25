@@ -15,7 +15,6 @@
     entity.setSecondaryFireEnabled(value)
 
 #!define enableHeroCaps(entity)\
-    # Reset abilities availability\
     entity.setAbility1Enabled(true)\
     entity.setAbility2Enabled(true)\
     entity.setUltEnabled(true)\
