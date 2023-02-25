@@ -6,7 +6,7 @@ defineVariables("player", "magneticBomb", [/* "posX", "posY", "posZ",*/ "strengt
     "velocity", "state", "target", "#effects", "#entities", "startVec", "endVec", "#cdTarget", "#cdAbility", "#viewVect" ])
 
 defineConfigs("Cassidy: Magnetic Bomb", [
-    { key: "magneticBomb_isActive", name: "Enalbed", type: "bool", value: true },
+    /*{ key: "magneticBomb_isActive", name: "Enalbed", type: "bool", value: true },*/
     { key: "magneticBomb_cdDelayHit", name: "Time Out (When Change Target)", type: "float[1:10]", value: 1 },
     { key: "magneticBomb_cdNoHit", name: "Cooldown (When No Hit)", type: "float[1:10]", value: 3 },
     { key: "magneticBomb_cdSomeHit", name: "Cooldown (When Hit Someone)", type: "float[1:10]", value: 5 },
@@ -20,15 +20,16 @@ subroutine magneticBomb_OnDestroy
 rule "cassidy magnetic bomb: init":
     @Event eachPlayer
     @Hero mccree
-    @Condition magneticBomb_isActive
+    @Condition eventPlayer.isReady() == false
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.magneticBomb_target = -1
     eventPlayer.magneticBomb_state = 0
+    eventPlayer.setReady()
 
 rule "cassidy magnetic bomb: trigger":
     @Event eachPlayer
     @Hero mccree
-    @Condition magneticBomb_isActive
+    @Condition eventPlayer.isReady()
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2)
     @Condition eventPlayer.magneticBomb_state == 0
     @Condition entityExists(eventPlayer.magneticBomb_target) and eventPlayer.magneticBomb_target.isAlive()
@@ -56,7 +57,7 @@ rule "cassidy magnetic bomb: update view":
     @Event eachPlayer
     @Hero mccree
     @Condition eventPlayer.isAlive()
-    @Condition magneticBomb_isActive
+    @Condition eventPlayer.isReady()
     @Condition eventPlayer.magneticBomb_state == 1
     @Condition eventPlayer.magneticBomb_target != -1
     @Condition eventPlayer.magneticBomb_strength > CASSIDY_MAGNETICBOMB_MIN_STRENGTH
@@ -79,10 +80,10 @@ rule "cassidy magnetic bomb: update view":
 rule "cassidy magnetic bomb: change target":
     @Event playerDealtDamage
     @Condition attacker != victim
+    @Condition attacker.isReady()
     @Condition entityExists(attacker)
     @Condition attacker.getCurrentHero() == Hero.MCCREE or attacker.getHeroOfDuplication() == Hero.MCCREE
     @Condition attacker.magneticBomb_cdTarget == 0
-    @Condition magneticBomb_isActive
     attacker.magneticBomb_target = victim
     attacker.magneticBomb_cdTarget = magneticBomb_cdDelayHit
     chase(attacker.magneticBomb_cdTarget, 0, rate=1, ChaseReeval.DESTINATION_AND_RATE)
@@ -90,7 +91,7 @@ rule "cassidy magnetic bomb: change target":
 rule "cassidy magnetic bomb: reset target (lost power)":
     @Event eachPlayer
     @Hero mccree
-    @Condition magneticBomb_isActive
+    @Condition eventPlayer.isReady()
     @Condition eventPlayer.magneticBomb_strength <= CASSIDY_MAGNETICBOMB_MIN_STRENGTH
     eventPlayer.magneticBomb_target = null
     eventPlayer.magneticBomb_cdAbility = magneticBomb_cdSomeHit
@@ -99,6 +100,7 @@ rule "cassidy magnetic bomb: reset target (lost power)":
 rule "cassidy magnetic bomb: reset target (invalid)":
     @Event eachPlayer
     @Hero mccree
+    @Condition eventPlayer.isReady()
     @Condition eventPlayer.magneticBomb_state == 1
     @Condition not entityExists(eventPlayer.magneticBomb_target) or eventPlayer.magneticBomb_target.isDead()
     eventPlayer.magneticBomb_cdAbility = magneticBomb_cdNoHit
@@ -120,20 +122,24 @@ def magneticBomb_OnDestroy():
     @Name "cassidy magnetic bomb: cleanup"
 
     declareForEach(eventPlayer.magneticBomb_effects)
+    wait()
 
     forEachArray(eventPlayer.magneticBomb_effects):
         destroyEffect(loopBody(eventPlayer.magneticBomb_effects))
         loopIndex(eventPlayer.magneticBomb_effects)++
         wait()
 
+    wait()
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, eventPlayer.magneticBomb_cdAbility)
     eventPlayer.magneticBomb_state = 0
 
+/*
 rule "[DEBUG ONLY] Force cassidy random usage of ability 2":
     @Team 2
     @Event eachPlayer
     @Hero mccree
+    @Disabled
     @Condition g_debugMode
     @Condition eventPlayer != hostPlayer
     @Condition eventPlayer.getAbilityCooldown(Button.ABILITY_2) == 0
@@ -148,3 +154,4 @@ rule "[DEBUG ONLY] Force cassidy random usage of ability 2":
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
 
     goto RULE_START
+*/

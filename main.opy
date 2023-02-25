@@ -10,10 +10,28 @@
 # #!extension energyExplosionEffects
 # #!extension explosionSounds
 # #!extension playMoreEffects
-# #!extension spawnMoreDummyBots
+#!extension spawnMoreDummyBots
+
+
+#!define delimiterRule()\
+rule "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////":\
+    @Delimiter\
+    @Disabled\
+    @Event global\
+    
+
+#!define importScript(path) #!include path\
+delimiterRule()
 
 #!extension kineticExplosionEffects
 
+playervar tag = "reset"
+playervar lastHero = null
+
+#!defineMember hasTag(name) tag.strIndex(name) != -1
+#!defineMember setTag(name) tag = name
+#!defineMember isReady() tag.strIndex("reset") == -1
+#!defineMember setReady() tag = ""
 
 settings {
     "main": {
@@ -27,37 +45,37 @@ settings {
         "returnToLobby": "afterGame"
     },
     "gamemodes": {
-        "hybrid": {
+        "general": {
+            "gamemodeStartTrigger": "manual",
+            #"heroLimit": "off",
+            "enableKillCam": false,
+            "enableKillFeed": false,
+            "respawnTime%": 50,
+            #"enableRandomHeroes": true
+        },
+        "assault": {
             "enabledMaps": [
-                "midtown",
-                "paraiso"
+                "hanamura",
+                #"midtown"
             ],
             "enableCompetitiveRules": true
         }
     },
     "heroes": {
         "allTeams": {
-            "enabledHeroes": [
+            /*"enabledHeroes": [
                 "mccree",
                 "mercy",
                 "sombra",
                 "lucio",
                 "moira"
-            ]
+            ],*/
+            "sombra": {
+                "secondaryFireCooldown%": 250
+            }
         }
     }
 }
-
-globalvar g_debugMode = createWorkshopSetting(bool, "Misc", "Debug Mode", true, 0)
-
-rule "[DEBUG ONLY] Used for testing with bots!":
-    @Event eachPlayer
-    @Condition eventPlayer != hostPlayer
-    @Condition g_debugMode
-    eventPlayer.setPrimaryFireEnabled(false)
-    eventPlayer.setSecondaryFireEnabled(false)
-    eventPlayer.setAbility1Enabled(false)
-    eventPlayer.setUltEnabled(false)
 
 #!define destination(pos, rot, len) ((pos + rot) * len)
 #!define clamp(value, min, max) min if value < min else max if value > max else value
@@ -65,14 +83,73 @@ rule "[DEBUG ONLY] Used for testing with bots!":
 #!define defineVariables(type, section, variables) __script__("api/defineVariables.js")
 #!define defineConfigs(category, props) __script__("api/defineConfigs.js")
 
-#!include "util.opy"
-
 #!define getState(array, player) array[player.getSlot() * (1 if player.getTeam() == Team.1 else 2)]
 #!define setState(array, player, value) getState(array, player) = value
 #!define toggleState(array, player) setState(array, player, not getState(array, player))
 
-#!include "heroes/cassidy.opy"
-#!include "heroes/lucio.opy"
-#!include "heroes/mercy.opy"
-#!include "heroes/moira.opy"
-#!include "heroes/sombra.opy"
+#!include "util.opy"
+
+globalvar g_debugMode = createWorkshopSetting(bool, "Misc", "Debug Mode", true, 0)
+
+/*rule "[DEBUG ONLY] Used for testing with bots!":
+    @Event eachPlayer
+    @Condition eventPlayer != hostPlayer
+    @Condition g_debugMode
+    @Disabled
+    eventPlayer.setPrimaryFireEnabled(false)
+    eventPlayer.setSecondaryFireEnabled(false)
+    eventPlayer.setAbility1Enabled(false)
+    eventPlayer.setUltEnabled(false)*/
+
+rule "player: soft reset":
+    @Event eachPlayer
+    @Condition eventPlayer.isInSpawnRoom()
+    @Condition eventPlayer.isAlive()
+    @Condition eventPlayer.hasTag("reset") == false or eventPlayer.lastHero != eventPlayer.getCurrentHero()
+    # Track hero changes (work-around fix for cassidy tweak, after change hero cannot use ability 2)
+    eventPlayer.lastHero = eventPlayer.getCurrentHero()
+
+    # Reset abilities availability
+    eventPlayer.setAbility1Enabled(true)
+    eventPlayer.setAbility2Enabled(true)
+    eventPlayer.setUltEnabled(true)
+    eventPlayer.setJumpEnabled(true)
+    eventPlayer.setMeleeEnabled(true)
+    eventPlayer.setCrouchEnabled(true)
+    eventPlayer.setReloadEnabled(true)
+    eventPlayer.setPrimaryFireEnabled(true)
+    eventPlayer.setSecondaryFireEnabled(true)
+
+    # Reset button state params.
+    eventPlayer.allowButton(Button.INTERACT)
+    eventPlayer.allowButton(Button.JUMP)
+    eventPlayer.allowButton(Button.RELOAD)
+    eventPlayer.allowButton(Button.MELEE)
+    eventPlayer.allowButton(Button.ULTIMATE)
+    eventPlayer.allowButton(Button.PRIMARY_FIRE)
+    eventPlayer.allowButton(Button.SECONDARY_FIRE)
+    eventPlayer.allowButton(Button.ABILITY_1)
+    eventPlayer.allowButton(Button.ABILITY_2)
+    eventPlayer.allowButton(Button.CROUCH)
+
+    # Reset player movement params.
+    eventPlayer.setMoveSpeed(100)
+    eventPlayer.setGravity(100)
+
+    # Some tweaks can change projectile speed & gravity, so reset both them.
+    eventPlayer.setProjectileGravity(100)
+    eventPlayer.setProjectileSpeed(100)
+
+    # Some delay to all changes get submited.
+    wait(0.25)
+
+    # Notify current tweaked script we had performed a soft player params reset (for example cassidy initial setup will disable ABILITY_2 button).
+    eventPlayer.setTag("reset")
+
+delimiterRule()
+
+importScript("heroes/cassidy.opy")
+importScript("heroes/lucio.opy")
+#importScript("heroes/mercy.opy")
+importScript("heroes/moira.opy")
+importScript("heroes/sombra.opy")
