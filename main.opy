@@ -14,7 +14,7 @@
 
 
 #!define delimiterRule()\
-rule "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////":\
+rule "____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________":\
     @Delimiter\
     @Disabled\
     @Event global\
@@ -77,15 +77,9 @@ settings {
     }
 }
 
-#!define destination(pos, rot, len) ((pos + rot) * len)
-#!define clamp(value, min, max) min if value < min else max if value > max else value
-
 #!define defineVariables(type, section, variables) __script__("api/defineVariables.js")
 #!define defineConfigs(category, props) __script__("api/defineConfigs.js")
 
-#!define getState(array, player) array[player.getSlot() * (1 if player.getTeam() == Team.1 else 2)]
-#!define setState(array, player, value) getState(array, player) = value
-#!define toggleState(array, player) setState(array, player, not getState(array, player))
 
 #!include "util.opy"
 
@@ -109,28 +103,8 @@ rule "player: soft reset":
     # Track hero changes (work-around fix for cassidy tweak, after change hero cannot use ability 2)
     eventPlayer.lastHero = eventPlayer.getCurrentHero()
 
-    # Reset abilities availability
-    eventPlayer.setAbility1Enabled(true)
-    eventPlayer.setAbility2Enabled(true)
-    eventPlayer.setUltEnabled(true)
-    eventPlayer.setJumpEnabled(true)
-    eventPlayer.setMeleeEnabled(true)
-    eventPlayer.setCrouchEnabled(true)
-    eventPlayer.setReloadEnabled(true)
-    eventPlayer.setPrimaryFireEnabled(true)
-    eventPlayer.setSecondaryFireEnabled(true)
-
-    # Reset button state params.
-    eventPlayer.allowButton(Button.INTERACT)
-    eventPlayer.allowButton(Button.JUMP)
-    eventPlayer.allowButton(Button.RELOAD)
-    eventPlayer.allowButton(Button.MELEE)
-    eventPlayer.allowButton(Button.ULTIMATE)
-    eventPlayer.allowButton(Button.PRIMARY_FIRE)
-    eventPlayer.allowButton(Button.SECONDARY_FIRE)
-    eventPlayer.allowButton(Button.ABILITY_1)
-    eventPlayer.allowButton(Button.ABILITY_2)
-    eventPlayer.allowButton(Button.CROUCH)
+    # Enable player abilities & buttons.
+    enableHeroCaps(eventPlayer)
 
     # Reset player movement params.
     eventPlayer.setMoveSpeed(100)

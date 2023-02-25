@@ -7,7 +7,7 @@ rule "lúcio: boops decrease gravity":
     @Condition attacker.getCurrentHero() == Hero.LUCIO
     @Condition eventAbility == Button.SECONDARY_FIRE
     @Condition getState(lucioBoopTrigger, victim) == 0
-    toggleState(lucioBoopTrigger, victim)
+    setState(lucioBoopTrigger, victim, 1)
     victim.setStatusEffect(attacker, Status.STUNNED, 0.85)
     wait(0.85)
-    toggleState(lucioBoopTrigger, victim)
+    setState(lucioBoopTrigger, victim, 0)
