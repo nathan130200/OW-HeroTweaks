@@ -39,7 +39,10 @@ settings {
         "allTeams": {
             "enabledHeroes": [
                 "mccree",
-                "mercy"
+                "mercy",
+                "sombra",
+                "lucio",
+                "moira"
             ]
         }
     }
