@@ -8,3 +8,8 @@
 #!define loopBody(array) array[1][array[0]]
 
 #!define loopIndex(array) array[0]
+
+#!define setHeroCaps(entity, value) entity.setAbility1Enabled(value)\
+    entity.setAbility2Enabled(value)\
+    entity.setUltEnabled(value)\
+    entity.setSecondaryFireEnabled(value)

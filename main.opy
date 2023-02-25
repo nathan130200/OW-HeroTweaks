@@ -64,4 +64,12 @@ rule "[DEBUG ONLY] Used for testing with bots!":
 
 #!include "util.opy"
 
+#!define getState(array, player) array[player.getSlot() * (1 if player.getTeam() == Team.1 else 2)]
+#!define setState(array, player, value) getState(array, player) = value
+#!define toggleState(array, player) setState(array, player, not getState(array, player))
+
 #!include "heroes/cassidy.opy"
+#!include "heroes/lucio.opy"
+#!include "heroes/mercy.opy"
+#!include "heroes/moira.opy"
+#!include "heroes/sombra.opy"
